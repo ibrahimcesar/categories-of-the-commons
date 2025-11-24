@@ -1,0 +1,54 @@
+# Core Data Science
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+scikit-learn>=1.3.0
+
+# Data Collection
+requests>=2.31.0
+PyGithub>=2.1.0
+aiohttp>=3.9.0
+
+# Data Storage
+pyarrow>=14.0.0
+openpyxl>=3.1.0
+
+# Statistical Analysis
+statsmodels>=0.14.0
+pingouin>=0.5.3
+
+# Visualization
+matplotlib>=3.8.0
+seaborn>=0.13.0
+plotly>=5.18.0
+
+# Network Analysis (for morphism graphs)
+networkx>=3.2.0
+
+# Text Processing (for governance document analysis)
+nltk>=3.8.0
+spacy>=3.7.0
+
+# Jupyter
+jupyter>=1.0.0
+jupyterlab>=4.0.0
+ipywidgets>=8.1.0
+
+# Code Quality
+black>=23.0.0
+flake8>=6.1.0
+mypy>=1.7.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Documentation
+sphinx>=7.2.0
+sphinx-rtd-theme>=2.0.0
+
+# Progress bars
+tqdm>=4.66.0
+
+# Environment
+python-dotenv>=1.0.0

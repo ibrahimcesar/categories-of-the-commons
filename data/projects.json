@@ -1,0 +1,111 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "last_updated": "2025-01-24",
+    "design": "Stadium-optimized with n=28-30 Stadium, n=12-15 Federation, n=8-10 Club, n=15-20 Control",
+    "total_target": 70,
+    "description": "Statistically optimized sample prioritizing categorical signal validity"
+  },
+  "selection_criteria": {
+    "stadium": {
+      "user_growth": "high",
+      "contributor_growth": "low",
+      "maintainer_count": "<=3",
+      "download_threshold": ">100k/month",
+      "performance_data": "required",
+      "target_n": 28
+    },
+    "federation": {
+      "user_growth": "high",
+      "contributor_growth": "high",
+      "governance_docs": "required",
+      "foundation_backing": "CNCF/Apache/LF preferred",
+      "target_n": 14
+    },
+    "club": {
+      "user_growth": "low",
+      "contributor_growth": "high",
+      "community_cohesion": "high",
+      "niche_focus": "required",
+      "target_n": 10
+    },
+    "control": {
+      "sampling": "random",
+      "mixed_types": true,
+      "target_n": 18
+    }
+  },
+  "projects": {
+    "stadium": [
+      {
+        "name": "curl",
+        "repo": "curl/curl",
+        "language": "C",
+        "maintainers": 1,
+        "rationale": "Iconic Stadium project, single maintainer (Daniel Stenberg), massive usage",
+        "status": "proposed"
+      },
+      {
+        "name": "core-js",
+        "repo": "zloirock/core-js",
+        "language": "JavaScript",
+        "maintainers": 1,
+        "rationale": "Controversial Stadium case, critical infrastructure, maintainer burnout story",
+        "status": "proposed"
+      },
+      {
+        "name": "requests",
+        "repo": "psf/requests",
+        "language": "Python",
+        "maintainers": 2,
+        "rationale": "High-download Python library, minimal maintainer team",
+        "status": "proposed"
+      }
+    ],
+    "federation": [
+      {
+        "name": "Kubernetes",
+        "repo": "kubernetes/kubernetes",
+        "language": "Go",
+        "foundation": "CNCF",
+        "governance": "https://github.com/kubernetes/community/blob/master/governance.md",
+        "rationale": "Exemplary Federation governance, SIGs, extensive documentation",
+        "status": "proposed"
+      },
+      {
+        "name": "Rust",
+        "repo": "rust-lang/rust",
+        "language": "Rust",
+        "foundation": "Rust Foundation",
+        "governance": "https://github.com/rust-lang/rfcs",
+        "rationale": "Strong governance, RFC process, well-documented decision-making",
+        "status": "proposed"
+      }
+    ],
+    "club": [
+      {
+        "name": "Example niche framework",
+        "repo": "TBD",
+        "language": "TBD",
+        "rationale": "Tight-knit community, low user base, high contributor engagement",
+        "status": "to_identify"
+      }
+    ],
+    "control": [
+      {
+        "name": "Random sample 1",
+        "repo": "TBD",
+        "rationale": "Baseline noise estimation",
+        "status": "to_sample"
+      }
+    ]
+  },
+  "notes": [
+    "Stadium projects are PRIMARY focus - aim for 28-30 high-quality examples",
+    "Selection criteria: High downloads (>100k/month), ≤3 maintainers, performance data available",
+    "Federation projects serve as theoretical anchor - need established governance docs",
+    "Club projects for convergent case validation - need evidence of tight community",
+    "Control group for statistical noise baseline - random sampling across types",
+    "Update this file as projects are identified, evaluated, and confirmed"
+  ]
+}

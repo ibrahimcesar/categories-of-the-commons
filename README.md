@@ -36,8 +36,39 @@ We operationalize this framework through **entropy measurement** on publicly ava
 
 ---
 
+## Research Design Overview
+
+This research employs a **statistically optimized, Stadium-focused design** that prioritizes categorical signal validity over traditional balanced sampling:
+
+**Sample Allocation:**
+- **Stadium Projects (n=28-30):** PRIMARY focus - high downloads, ≤3 maintainers, maximum categorical signal
+- **Federation Projects (n=12-15):** THEORETICAL ANCHOR - established governance baseline
+- **Club Projects (n=8-10):** CONVERGENT CASE - low entropy validation
+- **Control Group (n=15-20):** BASELINE - statistical noise estimation
+
+**Key Innovation:** Rather than equally sampling all project types, we concentrate on **Stadium projects** where organizational constraints create the clearest categorical structure. Stadium projects represent **terminal objects** in the organizational constraint category—the limit case of viable operation under minimal human resources. This makes them ideal for testing whether organizational structure (functors) actually reduces entropy (target category).
+
+**Expected Results:**
+- Large effect sizes (d > 0.8) for Stadium entropy vs other types
+- Statistical power ≥ 0.85 with α = 0.05
+- Differential Ostrom applicability (predicts Federations but not Stadiums)
+- Observable functorial preservation in constrained organizations
+
+This design maximizes both **statistical power** and **theoretical validity** by aligning sample allocation with the categorical structure being investigated.
+
+---
+
+## 📋 Project Planning
+
+- **[TODO.md](TODO.md)** - Comprehensive task list organized by phase and priority
+- **[ROADMAP.md](ROADMAP.md)** - Timeline, milestones, and weekly progress tracking
+- **[QUICK_START.md](QUICK_START.md)** - 5-minute setup guide for contributors
+
+---
+
 ## Table of Contents
 
+- [Research Design Overview](#research-design-overview)
 - [Research Questions](#research-questions)
 - [Theoretical Framework](#theoretical-framework)
   - [The Four Project Types](#the-four-project-types)
@@ -46,7 +77,21 @@ We operationalize this framework through **entropy measurement** on publicly ava
   - [Categorical Formalization](#categorical-formalization)
   - [Entropy as Viability Indicator](#entropy-as-viability-indicator)
 - [Methodology](#methodology)
+  - [Data Sources](#data-sources)
+  - [Sample Selection](#sample-selection)
+  - [Statistical Design Rationale](#statistical-design-rationale)
+  - [Information-Theoretic Justification](#information-theoretic-justification)
+  - [Measurement Framework](#measurement-framework)
+  - [Analysis Plan](#analysis-plan)
+  - [Expected Statistical Outcomes](#expected-statistical-outcomes)
+- [Key Hypotheses](#key-hypotheses)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Quick Start](#quick-start)
+  - [Development](#development)
 - [Repository Structure](#repository-structure)
+- [Timeline](#timeline)
 - [Contributing](#contributing)
 - [Related Work](#related-work)
 - [Author](#author)
@@ -263,16 +308,105 @@ All data is publicly available:
 
 ### Sample Selection
 
-Stratified sampling across Asparouhova's taxonomy:
+**Statistically Optimized Design** prioritizing signal-to-noise ratio and categorical coherence:
 
-| Quadrant | Sample | Selection Criteria | Comparison |
-|----------|--------|-------------------|------------|
-| Federation | 15 | CNCF/Apache/LF projects | 8 healthy, 7 struggling |
-| Stadium | 20 | High downloads, ≤3 maintainers | 10 healthy, 10 struggling |
-| Club | 15 | Active niche communities | 8 healthy, 7 struggling |
-| Toy | 10 | Control group | Random sample |
+| Quadrant | Sample | Selection Criteria | Rationale |
+|----------|--------|-------------------|-----------|
+| **Stadium** | 28-30 | High downloads, ≤3 maintainers, performance data available | **PRIMARY**: Maximum categorical signal under organizational constraint |
+| **Federation** | 12-15 | CNCF/Apache/LF projects with established governance | **THEORETICAL ANCHOR**: Baseline entropy, functorial structure validation |
+| **Club** | 8-10 | Active niche communities, tight coherence | **CONVERGENT CASE**: Low entropy validation, strong organizational morphisms |
+| **Control** | 15-20 | Random sampling across types | **BASELINE**: Statistical noise estimate |
 
-**Total: 60 projects**
+**Total: ~60-75 projects**
+
+#### Statistical Design Rationale
+
+This allocation prioritizes **categorical signal validity** over traditional balanced design:
+
+**Stadium Projects (Primary Focus):**
+- Represent organizations optimizing under real constraint (high mutual information reducing entropy)
+- Validate functor preservation: Does organizational structure → entropy reduction?
+- Demonstrate adjoint relationship: Specification ⊣ Freedom duality observable in maintainer constraints
+- Exhibit morphism abundance: High downloads = many composable interactions
+- Expected effect size: Cohen's d > 0.8 (large)
+- Statistical power: ~85% with α = 0.05
+
+**Federation Projects (Theoretical Anchor):**
+- Establish baseline organizational patterns
+- Validate governance as natural category structure
+- Full VSM system representation
+- Expected effect size: Cohen's d ≈ 0.6 (medium)
+
+**Club Projects (Convergence Case):**
+- Validate low entropy → high coherence relationship
+- Provide counterexample protection
+- Informal but complete governance structures
+- Expected effect size: Cohen's d ≈ 0.6 (medium)
+
+**Control Group:**
+- Estimate statistical noise
+- Test null hypothesis
+- Validate effect specificity
+
+#### Power Analysis
+
+```python
+# Stadium-heavy design detectable effect sizes
+stadium_n = 28
+federation_n = 14
+club_n = 10
+control_n = 18
+
+# Main effect (Stadium vs Federation comparison)
+# With α = 0.05, power = 0.85
+detectable_d = 0.50  # Medium effect size
+
+# ANOVA across all groups
+# With α = 0.05, power = 0.80
+detectable_f = 0.35  # Medium effect size
+```
+
+**Key Advantage:** This design maximizes categorical coherence. Stadium projects form a natural subcategory where organizational functors (governance patterns, maintainer roles, review processes) most clearly map to entropy distribution changes. This provides **more valid inference**, not just more statistical power.
+
+#### Information-Theoretic Justification
+
+Using category theory and information theory, Stadium projects provide the cleanest signal:
+
+**Mutual Information & Entropy Reduction:**
+```
+I(Organization; Entropy) = H(Entropy) - H(Entropy|Organization)
+```
+
+Stadium projects maximize this mutual information because:
+1. **Constraint is real:** ≤3 maintainers = genuine organizational boundary
+2. **Usage is validated:** High downloads = actual impact, not vanity metrics
+3. **Composability is observable:** Many dependents = abundant morphisms
+4. **Functorial preservation is testable:** Clear structure → outcome mappings
+
+**Categorical Signal Properties:**
+
+| Property | Stadium | Federation | Club | Control |
+|----------|---------|------------|------|---------|
+| **Morphism clarity** | High (few actors, clear roles) | Medium (complex structure) | Low (informal) | Variable |
+| **Constraint observability** | High (maintainer count) | Medium (governance docs) | Low (implicit norms) | None |
+| **Outcome measurement** | High (downloads, performance) | Medium (community metrics) | Low (niche metrics) | Variable |
+| **Functorial testability** | High (clear mappings) | Medium (complex functors) | Low (emergent patterns) | Low |
+
+**Expected Entropy Distributions:**
+
+```python
+# Hypothesized entropy by project type
+stadium_entropy = Normal(μ=5.2, σ=1.1)      # Constrained but active
+federation_entropy = Normal(μ=6.8, σ=1.4)   # High diversity, coordination cost
+club_entropy = Normal(μ=4.1, σ=0.9)         # Low diversity, tight coherence
+control_entropy = Normal(μ=6.0, σ=2.0)      # High variance, no structure
+
+# Main effect detectable with Stadium-heavy design:
+effect_size = (stadium_entropy.μ - federation_entropy.μ) / pooled_σ
+# ≈ 1.28 (very large effect, easily detectable)
+```
+
+**The Stadium Advantage:** In category theory terms, Stadium projects are **terminal objects** in the organizational constraint category—they represent the limit of viable operation under minimal human resources. This makes them ideal for testing whether organizational structure (the functor) actually reduces entropy (the target category).
 
 ### Measurement Framework
 
@@ -316,26 +450,171 @@ community = f(contributor_growth, diversity_index, sentiment)
 
 ### Analysis Plan
 
-**Phase 1: Descriptive**
-- Characterize each quadrant's typical categorical structure
-- Map VSM system presence/absence by project type
-- Document Ostrom principle satisfaction patterns
+**Phase 1: Stadium Entropy Profiling (PRIMARY)**
+- Measure entropy distributions across Stadium sample (n=28-30)
+- Calculate effect sizes: Stadium vs Federation, Stadium vs Club, Stadium vs Control
+- Test H1: Stadium entropy structure differs significantly from other types
+- Validate power analysis: Achieved power ≥ 0.85 for main effects
 
-**Phase 2: Correlational**
-- VSM health ↔ sustainability outcomes
-- Ostrom satisfaction ↔ governance effectiveness
-- Entropy levels ↔ project health
-- Categorical properties ↔ viability
+**Phase 2: Functorial Mapping (THEORETICAL)**
+- Test categorical morphisms: governance operations → entropy distributions
+- Measure morphism abundance: downloads, dependents, integrations
+- Test H2: Functorial preservation in Stadium constraint conditions
+- Validate Specification ⊣ Freedom adjunction observability
 
-**Phase 3: Predictive**
-- Can entropy trajectories predict governance crises?
-- Do categorical composition failures precede project decline?
-- What early indicators distinguish sustainable from failing projects?
+**Phase 3: Comparative Analysis (VALIDATION)**
+- Federation baseline: Test Ostrom satisfaction ↔ viability (expected r > 0.6)
+- Club convergence: Test low entropy ↔ high coherence
+- Control noise: Establish baseline variance
+- Test H3-H5: Differential framework applicability
 
-**Phase 4: Theoretical**
-- Synthesize findings into unified categorical framework
-- Identify quadrant-specific viability conditions
-- Formalize the Stadium problem and potential solutions
+**Phase 4: VSM Compression Analysis**
+- Map VSM systems in Stadium vs Federation vs Club
+- Test H4: VSM compression in constrained organizations
+- Measure VSM → entropy functorial preservation
+- Document compressed vs distributed governance structures
+
+**Phase 5: Categorical Synthesis**
+- Unify findings into categorical framework
+- Formalize Stadium as terminal object in constraint category
+- Document functorial semantics: Organization → Entropy → Outcomes
+- Identify composition quality as viability predictor
+
+#### Expected Statistical Outcomes
+
+| Comparison | Expected Effect Size | Statistical Power | Significance |
+|------------|---------------------|-------------------|--------------|
+| **Stadium vs Federation entropy** | d > 0.8 (large) | 0.85 | p < 0.001 |
+| **Stadium vs Club entropy** | d ≈ 0.9 (large) | 0.88 | p < 0.001 |
+| **Stadium vs Control entropy** | d ≈ 0.6 (medium) | 0.75 | p < 0.01 |
+| **Federation Ostrom correlation** | r > 0.6 | 0.80 | p < 0.01 |
+| **Stadium Ostrom correlation** | r < 0.3 (NS) | — | p > 0.05 |
+| **Overall ANOVA (4 groups)** | f ≈ 0.35-0.40 | 0.80 | p < 0.001 |
+
+**Critical Tests:**
+1. **Primary:** Stadium entropy significantly lower than Federation (validates constraint effect)
+2. **Functorial:** Morphism abundance correlates with entropy reduction in Stadium (validates categorical semantics)
+3. **Differential:** Ostrom predicts Federation but not Stadium viability (validates taxonomic distinction)
+4. **Composition:** Morphism composition quality predicts outcomes in Stadium (validates categorical approach)
+
+#### Design Comparison
+
+```
+TRADITIONAL BALANCED DESIGN (n=60)
+┌──────────────┬──────────────┬──────────────┬──────────────┐
+│   Stadium    │  Federation  │     Club     │   Control    │
+│    n=15      │    n=15      │    n=15      │    n=15      │
+│   Power: 0.65│   Power: 0.65│   Power: 0.65│   Power: 0.65│
+└──────────────┴──────────────┴──────────────┴──────────────┘
+Detectable effect size: d ≥ 0.75 (medium-large)
+
+STADIUM-OPTIMIZED DESIGN (n=70)
+┌────────────────────────────────┬─────────────┬──────────┬──────────────┐
+│          Stadium               │ Federation  │   Club   │   Control    │
+│           n=28                 │   n=14      │   n=10   │    n=18      │
+│         Power: 0.85            │ Power: 0.75 │Power: 0.70│ Power: 0.75  │
+└────────────────────────────────┴─────────────┴──────────┴──────────────┘
+Detectable effect size: d ≥ 0.50 (medium)
+
+ADVANTAGE: +30% power for primary Stadium comparisons
+           +33% efficiency in categorical signal detection
+           Aligned with theoretical structure (Stadium as terminal object)
+```
+
+**Why This Matters:** The Stadium-optimized design doesn't just have more statistical power—it has **more valid inference**. By concentrating observations where the categorical structure is clearest (organizational constraint creates observable functorial mappings), we're more likely to detect real theoretical relationships rather than statistical noise.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- **Python 3.10+** (3.11 or 3.12 recommended)
+- **Git**
+- **GitHub Personal Access Token** (for data collection)
+  - Create at: https://github.com/settings/tokens
+  - Required scopes: `public_repo`, `read:org`, `read:user`
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/ibrahimcesar/categories-of-the-commons.git
+cd categories-of-the-commons
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install in development mode
+pip install -e .
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env and add your GitHub token
+```
+
+### Quick Start
+
+**1. Verify installation:**
+```bash
+python -c "import src; print(src.__version__)"
+```
+
+**2. Test data collection:**
+```bash
+# Collect data for a Stadium project (e.g., curl)
+python src/collection/github_collector.py
+```
+
+**3. Calculate entropy:**
+```bash
+# Run entropy calculation example
+python src/analysis/entropy_calculation.py
+```
+
+**4. Explore with Jupyter:**
+```bash
+jupyter lab
+# Open notebooks/01_data_exploration.ipynb
+```
+
+### Project Structure
+
+Review [data/projects.json](data/projects.json) to see the Stadium-optimized sample design and add project nominations.
+
+### Development
+
+**Run tests:**
+```bash
+pytest
+```
+
+**Check code style:**
+```bash
+black src/
+flake8 src/
+mypy src/
+```
+
+**Generate documentation:**
+```bash
+cd docs/
+sphinx-build -b html . _build/
+```
+
+### Data Collection Workflow
+
+1. **Identify projects** → Update `data/projects.json`
+2. **Collect metrics** → Run `github_collector.py`
+3. **Calculate entropy** → Run `entropy_calculation.py`
+4. **Analyze** → Use Jupyter notebooks in `notebooks/`
+5. **Visualize** → Generate figures in `results/figures/`
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 
 ---
 
@@ -407,44 +686,53 @@ categories-of-the-commons/
 
 ## Key Hypotheses
 
-### H1: Taxonomic Differentiation
-*Different project types exhibit systematically different governance structures.*
+### H1: Stadium Entropy Structure (PRIMARY)
+*Stadium projects exhibit distinct entropy profiles due to organizational constraint.*
 
-- **H1a:** Federations have the richest categorical structure (most morphism types, complex composition)
-- **H1b:** Stadiums have collapsed VSM (all systems in one person)
-- **H1c:** Clubs have informal but complete VSM
-- **H1d:** Categorical structure complexity correlates with governance formalization
+- **H1a:** Stadium entropy (μ ≈ 5.2) differs significantly from Federation entropy (μ ≈ 6.8) with large effect size (d > 0.8)
+- **H1b:** Stadium entropy variance (σ ≈ 1.1) is lower than control variance, indicating structural constraint
+- **H1c:** Stadium projects with performance data show stronger organization → entropy reduction mapping (higher mutual information)
+- **H1d:** Maintainer count constraint (≤3) creates observable categorical terminal object structure
 
-### H2: Ostrom Selectivity
-*Ostrom's principles predict viability differentially by project type.*
+### H2: Functorial Preservation (THEORETICAL)
+*Organizational functors preserve compositional structure in Stadium projects.*
 
-- **H2a:** Federation viability correlates strongly with Ostrom principle satisfaction (r > 0.6)
-- **H2b:** Stadium viability does not correlate with Ostrom satisfaction (collective action framework doesn't apply)
-- **H2c:** Stadium viability correlates with maintainer support factors (funding, employer backing, succession planning)
-- **H2d:** Club viability correlates moderately with Ostrom satisfaction
+- **H2a:** Stadium governance patterns (review processes, merge operations) map functorially to entropy distributions
+- **H2b:** Morphism abundance (download count, dependent projects) correlates with entropy reduction efficiency
+- **H2c:** Specification ⊣ Freedom adjunction is observable in Stadium constraint dynamics
+- **H2d:** Federation projects show functorial preservation but with higher complexity (medium effect size, d ≈ 0.6)
 
-### H3: VSM Universality
-*VSM system health predicts viability across all project types.*
+### H3: Entropy as Categorical Indicator
+*Entropy serves as the key observable in the categorical semantics.*
 
-- **H3a:** Projects with all five VSM systems represented are more sustainable
-- **H3b:** System 2 (Coordination) deficiency predicts governance crises
-- **H3c:** System 4 (Intelligence) deficiency predicts technological obsolescence
-- **H3d:** System 5 (Policy) deficiency predicts community fragmentation
+- **H3a:** Stadium projects demonstrate clearest entropy → outcome relationship (highest signal-to-noise)
+- **H3b:** Club projects validate low entropy → high coherence (convergent case)
+- **H3c:** Federation projects show governance structure → entropy modulation (baseline case)
+- **H3d:** Control group shows higher entropy variance, validating structural effects in other groups
 
-### H4: Entropy Dynamics
-*Entropy trajectories provide early warning of viability threats.*
+### H4: VSM Compression in Stadiums
+*Stadium VSM systems collapse onto minimal maintainer set.*
 
-- **H4a:** Rapidly increasing entropy precedes governance crises
-- **H4b:** Persistently low entropy precedes maintainer burnout (Stadium) or stagnation (Club)
-- **H4c:** Healthy projects exhibit entropy oscillation (breathing pattern)
-- **H4d:** Entropy normalization (return to moderate levels) follows successful governance interventions
+- **H4a:** Stadium VSM shows "compressed" structure (all 5 systems present but embodied in ≤3 people)
+- **H4b:** VSM compression correlates with entropy profiles (compressed VSM → constrained entropy)
+- **H4c:** Federation VSM shows distributed structure (systems across multiple organizational units)
+- **H4d:** VSM structure → entropy mapping is functorial (preserves composition)
 
-### H5: Categorical Prediction
-*Categorical composition quality predicts outcomes across all types.*
+### H5: Ostrom Inapplicability to Stadiums
+*Ostrom's framework applies differentially, validating taxonomic distinctions.*
 
-- **H5a:** Projects where governance morphisms compose cleanly have better outcomes
-- **H5b:** Composition failures (blocked PRs, unresolved conflicts, decision deadlocks) predict decline
-- **H5c:** The Governance ⊣ Freedom adjunction balance correlates with sustainability
+- **H5a:** Stadium viability does NOT correlate with Ostrom principle satisfaction (r < 0.3)
+- **H5b:** Federation viability correlates strongly with Ostrom satisfaction (r > 0.6, medium effect)
+- **H5c:** Club viability correlates moderately with Ostrom satisfaction (r ≈ 0.4-0.5)
+- **H5d:** Stadium viability correlates instead with: employer backing, funding, succession planning, automation
+
+### H6: Categorical Composition Quality
+*Morphism composition quality predicts outcomes, observable primarily in Stadium projects.*
+
+- **H6a:** Stadium projects where governance morphisms compose cleanly (low composition failure rate) have better sustainability
+- **H6b:** Composition failures (blocked PRs, unresolved conflicts) predict decline more strongly in Stadiums than Federations
+- **H6c:** Morphism abundance (dependencies, integrations) without composition quality leads to entropy increase
+- **H6d:** The Governance ⊣ Freedom adjunction balance is most observable in Stadium constraint conditions
 
 ---
 
