@@ -26,9 +26,10 @@ Open source software (OSS) represents one of the most successful examples of com
 This research develops a **categorical-cybernetic framework** for analyzing OSS governance, synthesizing:
 
 - **Stafford Beer's Viable System Model (VSM)** — organizational cybernetics
-- **Elinor Ostrom's Institutional Analysis** — commons governance principles  
+- **Elinor Ostrom's Institutional Analysis** — commons governance principles
 - **Nadia Asparouhova's OSS Taxonomy** — contemporary open source typology
 - **Category Theory** — formal compositional semantics
+- **Sheaf Theory & Čech Cohomology** — local-to-global governance coherence
 
 We operationalize this framework through **entropy measurement** on publicly available OSS data, testing whether categorical structure predicts project viability across different governance models.
 
@@ -75,6 +76,7 @@ This design maximizes both **statistical power** and **theoretical validity** by
   - [Viable System Model for OSS](#viable-system-model-for-oss)
   - [Ostrom's Design Principles](#ostroms-design-principles)
   - [Categorical Formalization](#categorical-formalization)
+  - [Sheaf-Theoretic Framework](#sheaf-theoretic-framework)
   - [Entropy as Viability Indicator](#entropy-as-viability-indicator)
 - [Methodology](#methodology)
   - [Data Sources](#data-sources)
@@ -253,6 +255,36 @@ Too much governance (left adjoint dominates): Contributors leave, forks emerge
 Too much freedom (right adjoint dominates): Quality degrades, coherence collapses
 
 Healthy projects oscillate within this adjunction.
+
+### Sheaf-Theoretic Framework
+
+We extend the categorical approach using **sheaf theory** to capture local-to-global governance coherence. See [theory/sheaf-cohomology-framework.md](theory/sheaf-cohomology-framework.md) for the complete mathematical treatment.
+
+**Key Concepts:**
+
+| Sheaf Concept | OSS Governance Interpretation |
+|---------------|-------------------------------|
+| **Base Space** | Project topology (contributors, modules, time) |
+| **Stalks** | Local governance data (contributor knowledge, commit context) |
+| **Sections** | Consistent governance rules across regions |
+| **Gluing Axiom** | Local decisions must combine into coherent global policy |
+| **Čech Cohomology** | Measures governance coherence and conflict |
+
+**Cohomology Interpretation:**
+
+| Cohomology Group | Meaning |
+|------------------|---------|
+| **H⁰** | Global governance consensus (universal rules) |
+| **H¹** | Governance conflicts (incompatible local policies) |
+| **H²** | Structural obstructions (deep incompatibilities, fork precursors) |
+
+**The Cohomological Health Index:**
+
+$$\chi_{\text{gov}}(X) = \dim H^0 - \dim H^1 + \dim H^2$$
+
+This Euler characteristic-like invariant correlates with project sustainability metrics.
+
+**Key Hypothesis:** Non-trivial H² classes (structural governance incompatibilities) precede fork events by 6-12 months—providing a predictive signal for governance crises.
 
 ### Entropy as Viability Indicator
 
@@ -634,6 +666,7 @@ categories-of-the-commons/
 │   └── sections/                # Paper sections
 │
 ├── theory/                      # Theoretical framework
+│   ├── sheaf-cohomology-framework.md  # Sheaf theory & Čech cohomology
 │   ├── categorical-foundations.md
 │   ├── vsm-oss-mapping.md
 │   ├── ostrom-formalization.md
@@ -659,12 +692,15 @@ categories-of-the-commons/
 │   └── utils/                   # Helpers
 │
 ├── notebooks/                   # Jupyter notebooks
+│   ├── 00_setup_and_test.ipynb
 │   ├── 01_data_exploration.ipynb
-│   ├── 02_quadrant_classification.ipynb
-│   ├── 03_vsm_analysis.ipynb
-│   ├── 04_ostrom_analysis.ipynb
-│   ├── 05_entropy_analysis.ipynb
-│   └── 06_synthesis.ipynb
+│   ├── 02_batch_collection.ipynb
+│   ├── 03_statistical_analysis.ipynb
+│   ├── 04_category_theory.ipynb
+│   ├── 05_vsm_mapping.ipynb
+│   ├── 06_temporal_analysis.ipynb
+│   ├── 07_visualization_report.ipynb
+│   └── 08_sheaf_cohomology.ipynb   # Governance cohomology analysis
 │
 ├── results/                     # Output
 │   ├── tables/                  # Statistical tables

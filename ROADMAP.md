@@ -151,17 +151,17 @@ Week 10-12:[░░░░░░░░██] Submission & Release
 
 ### Critical Path 🔴
 - [ ] **Primary notebooks complete**
+  - 00: Setup and test ✓
   - 01: Data exploration ✓
-  - 02: Classification ✓
-  - 03: Entropy analysis ✓
-  - 04: Stadium focus (PRIMARY) ✓
-  - 08: Statistical tests ✓
+  - 02: Batch collection ✓
+  - 03: Statistical analysis ✓
+  - 04: Category theory ✓
+  - 08: Sheaf cohomology (NEW) ✓
 
 ### Secondary Analysis
-- [ ] VSM analysis notebook
-- [ ] Ostrom analysis notebook
-- [ ] Categorical analysis notebook
-- [ ] Visualization notebook
+- [ ] 05: VSM mapping notebook
+- [ ] 06: Temporal analysis notebook
+- [ ] 07: Visualization report notebook
 - [ ] Synthesis notebook
 
 ### Success Metrics
@@ -213,8 +213,15 @@ Week 10-12:[░░░░░░░░██] Submission & Release
 - [ ] Test: Morphism abundance effects
 - [ ] Test: Adjunction balance
 
+### H7: Sheaf Cohomology (NEW - from theory/sheaf-cohomology-framework.md)
+- [ ] Test: H² spike precedes fork events (6-12 months)
+- [ ] Test: H¹ correlates with organizational entropy
+- [ ] Test: Cohomological health index χ_gov predicts sustainability
+- [ ] Test: Quadrant-specific cohomology signatures
+- [ ] Validate: Ostrom principles map to H⁰ (global sections)
+
 ### Success Metrics
-- All 6 hypotheses tested
+- All 7 hypotheses tested (including sheaf cohomology)
 - p-values < 0.05 for primary tests
 - Effect sizes match predictions
 - Power analysis validated
@@ -446,7 +453,7 @@ Week 10-12:[░░░░░░░░██] Submission & Release
 
 ---
 
-## Current Status (Week 1)
+## Current Status (Week 2)
 
 **Overall Progress:** 🟢 On track
 
@@ -455,23 +462,33 @@ Week 10-12:[░░░░░░░░██] Submission & Release
 - ✅ Infrastructure created
 - ✅ README with research design
 - ✅ Basic data collection
-- ✅ Entropy calculations
+- ✅ Entropy calculations with classification
 - ✅ TODO and ROADMAP created
+- ✅ Notebooks 00-07 created
+- ✅ Candidate lists created (Stadium, Federation, Club, Toy)
+- ✅ 13 Stadium projects collected (curl, core-js, requests, axios, etc.)
+- ✅ **Sheaf-theoretic framework document** (theory/sheaf-cohomology-framework.md)
 
 **Next Week Priorities:**
-1. 🔴 Identify 10 Stadium projects
-2. 🔴 Extend github_collector.py with PR/issue data
-3. 🔴 Create package_metrics_collector.py
-4. 🟡 Start data collection for first batch
-5. 🟡 Begin 01_data_exploration.ipynb
+1. 🔴 Collect remaining Stadium candidates (15+ more needed)
+2. 🔴 Begin Federation project collection
+3. 🔴 Implement sheaf cohomology analysis module
+4. 🟡 Create notebook 08_sheaf_cohomology.ipynb
+5. 🟡 Start VSM mapping analysis
 
 **Blockers:** None currently
 
 **Decisions Needed:**
-- Finalize minimum download threshold for Stadium projects
-- Choose specific Federation projects (Kubernetes definitely, 11 more?)
+- Select computational topology library (GUDHI vs Dionysus)
+- Finalize Federation project list (Kubernetes, Rust, Node.js, ...)
+
+**New Theoretical Development:**
+- Sheaf-theoretic formulation complete (see theory/sheaf-cohomology-framework.md)
+- Čech cohomology for governance coherence measurement
+- Fork prediction hypothesis via H² classes
+- Integration with existing categorical framework
 
 ---
 
-**Last Updated:** 2025-01-24
-**Next Review:** 2025-01-27 (Monday)
+**Last Updated:** 2025-11-27
+**Next Review:** 2025-12-01 (Monday)

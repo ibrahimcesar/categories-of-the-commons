@@ -106,3 +106,4 @@ dmypy.json
 docs/_build/
 docs/_static/
 docs/_templates/
+.vscode/branch-timer.json
