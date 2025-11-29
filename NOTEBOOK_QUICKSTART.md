@@ -1,70 +1,76 @@
 # Jupyter Notebook Quick Start
 
-## Option 1: Install Packages in Notebook (Easiest)
+## Setup (Recommended)
 
-Add this as **Cell 1** in your notebook:
-
-```python
-# Install required packages
-import sys
-!{sys.executable} -m pip install PyGithub tqdm python-dotenv --quiet
-print("✅ Packages installed!")
+**1. Copy the environment template:**
+```bash
+cp .env.example .env
 ```
 
-## Option 2: Use Command to Set Token
-
-In your terminal, before starting Jupyter:
-
+**2. Edit `.env` and add your GitHub token:**
 ```bash
-export GITHUB_TOKEN="ghp_YOUR_TOKEN_HERE"
+# Get a token at: https://github.com/settings/tokens
+# Required scopes: public_repo, read:org, read:user
+GITHUB_TOKEN=ghp_your_actual_token_here
+```
+
+**3. Start Jupyter:**
+```bash
+source venv/bin/activate
 jupyter lab
 ```
 
-Then in notebook cell 1:
-
-```python
-import os
-GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
-print(f"✅ Token: {GITHUB_TOKEN[:7]}...{GITHUB_TOKEN[-4:]}")
-```
-
-## Option 3: Direct in Notebook (Quick Test)
-
-```python
-# Cell 1: Set token directly
-GITHUB_TOKEN = "ghp_YOUR_TOKEN_HERE"
-
-# Cell 2: Install and test
-import sys
-!{sys.executable} -m pip install PyGithub tqdm python-dotenv --quiet
-
-# Cell 3: Test collector
-import sys
-sys.path.insert(0, '../src')
-
-from collection.github_collector import GitHubCollector
-
-collector = GitHubCollector(token=GITHUB_TOKEN)
-print("✅ Collector initialized!")
-
-# Cell 4: Quick test - check maintainers
-maintainers = collector.collect_maintainer_data("curl/curl")
-print(f"Active maintainers: {maintainers['statistics']['active_maintainers_6mo']}")
-```
-
-## Then Continue with Full Collection
-
-```python
-# Cell 5: Collect full dataset
-data = collector.collect_complete_dataset("curl/curl", since_days=30)
-
-# Cell 6: View summary
-print(f"Stars: {data['repository']['stargazers_count']:,}")
-print(f"Active maintainers: {data['maintainers']['statistics']['active_maintainers_6mo']}")
-print(f"Contributors: {len(data['contributors'])}")
-```
+The notebooks will automatically load from `.env` - no need to hardcode tokens!
 
 ---
 
-**Your current collector is running in background and will finish soon!**
-Check progress: Look for file `data/raw/curl_curl_data.json`
+## How Token Loading Works
+
+All notebooks use this pattern:
+
+```python
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load from .env file in project root
+env_path = Path("../.env")
+if env_path.exists():
+    load_dotenv(env_path)
+
+GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
+```
+
+**Security:** The `.env` file is in `.gitignore` and will never be committed.
+
+---
+
+## Troubleshooting
+
+**Token not found?**
+1. Make sure `.env` exists in the project root
+2. Check the token is not the placeholder `your_github_token_here`
+3. Restart the Jupyter kernel after editing `.env`
+
+**Rate limit issues?**
+- Check remaining calls: `collector.get_rate_limit()`
+- Wait for reset or use a different token
+
+---
+
+## Quick Test
+
+Run this in any notebook to verify setup:
+
+```python
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path("../.env"))
+token = os.getenv('GITHUB_TOKEN')
+
+if token and token != "your_github_token_here":
+    print(f"✅ Token loaded: {token[:7]}...{token[-4:]}")
+else:
+    print("❌ Token not configured - edit .env file")
+```

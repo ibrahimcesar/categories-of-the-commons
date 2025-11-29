@@ -481,4 +481,199 @@ Error: 404 {'message': 'Not Found'}
 
 ---
 
-**Last Updated:** 2025-01-24
+---
+
+## Batch Collection with Daemon CLI
+
+The collector daemon provides a robust CLI for automated batch collection with rate limit management.
+
+### Quick Start
+
+```bash
+# 1. Initialize queue with stadium projects
+make collector-init CATEGORY=stadium
+
+# 2. Check status
+make collector-status
+
+# 3. Start collection (stops at rate limit)
+make collector-run LIMIT=10
+
+# 4. Monitor progress in real-time
+make collector-watch
+
+# 5. Resume after rate limit resets
+make collector-resume
+```
+
+### Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `make collector-init CATEGORY=stadium` | Initialize queue for a category (stadium, federation, club, toy) |
+| `make collector-status` | Show current collection status |
+| `make collector-watch` | Live dashboard that updates every 5s (Ctrl+C to exit) |
+| `make collector-run LIMIT=10` | Collect N projects, stops when rate limit low |
+| `make collector-run-wait LIMIT=10` | Collect N projects, waits for rate limit reset |
+| `make collector-resume` | Continue collection from where it stopped |
+| `make collector-retry` | Retry failed projects |
+| `make collector-clear` | Clear collection state (start fresh) |
+
+### Configuration
+
+**Environment Variables:**
+
+```bash
+# .env file
+GITHUB_TOKEN=ghp_xxx                    # Required: single token
+GITHUB_TOKENS=ghp_token1,ghp_token2     # Optional: multiple tokens for 2-3x throughput
+```
+
+**Make Variables:**
+
+```bash
+# Set category (default: stadium)
+make collector-init CATEGORY=federation
+
+# Set collection limit (default: 10)
+make collector-run LIMIT=20
+
+# Set watch interval (default: 5 seconds)
+make collector-watch WATCH_INTERVAL=10
+```
+
+### Workflow Examples
+
+**1. Full Category Collection (Unattended)**
+
+```bash
+# Initialize
+make collector-init CATEGORY=stadium
+
+# Run with auto-wait (will wait for rate limit and continue)
+make collector-run-wait LIMIT=999
+
+# In another terminal, monitor progress
+make collector-watch
+```
+
+**2. Incremental Collection (Manual)**
+
+```bash
+# Initialize
+make collector-init CATEGORY=stadium
+
+# Collect in batches
+make collector-run LIMIT=10
+# Wait 45-60 minutes for rate limit reset
+make collector-resume LIMIT=10
+# Repeat until complete
+```
+
+**3. Recovering from Failures**
+
+```bash
+# Check status to see failed projects
+make collector-status
+
+# Retry all failed projects
+make collector-retry
+
+# Continue collection
+make collector-resume
+```
+
+### State File
+
+Collection progress is persisted in `data/collection_state.json`:
+
+```json
+{
+  "queue": {
+    "pending": ["owner/repo1", "owner/repo2"],
+    "in_progress": null,
+    "completed": ["curl/curl", "nodejs/node"],
+    "failed": [{"repo": "...", "error": "...", "timestamp": "..."}]
+  },
+  "metadata": {
+    "category": "stadium",
+    "total_projects": 70,
+    "created_at": "...",
+    "updated_at": "..."
+  },
+  "statistics": {
+    "api_calls_total": 12500,
+    "collections_completed": 35
+  }
+}
+```
+
+### Rate Limit Strategy
+
+- **Single token:** ~14 projects/hour (5000 calls/hour ÷ 350 calls/project)
+- **Two tokens:** ~28 projects/hour
+- **Minimum threshold:** Collection stops when remaining < 500 calls
+
+The daemon automatically:
+1. Checks rate limit before each project
+2. Stops gracefully when limit is low
+3. Saves progress for easy resumption
+4. Handles Ctrl+C gracefully
+
+---
+
+## AWS Deployment (Phase 2)
+
+For fully automated collection, deploy to AWS using CDK.
+
+### Prerequisites
+
+```bash
+# Install CDK dependencies
+cd infra && npm install
+
+# Bootstrap CDK (first time only)
+make cdk-bootstrap
+
+# Store GitHub token in SSM
+GITHUB_TOKEN=ghp_xxx make cdk-set-token
+```
+
+### CDK Commands
+
+| Command | Description |
+|---------|-------------|
+| `make cdk-bootstrap` | Bootstrap CDK in your AWS account (first time) |
+| `make cdk-synth` | Synthesize CloudFormation template |
+| `make cdk-diff` | Preview infrastructure changes |
+| `make cdk-deploy` | Deploy to AWS |
+| `make cdk-destroy` | Destroy all AWS resources |
+| `make cdk-set-token` | Store GitHub token in SSM Parameter Store |
+
+### Architecture
+
+```
+EventBridge Scheduler (hourly)
+         │
+         ▼
+    Lambda Function
+    (14 min timeout)
+         │
+    ┌────┴────┐
+    │         │
+    ▼         ▼
+DynamoDB    S3 Bucket
+ (state)    (data)
+```
+
+### Syncing Data Locally
+
+After deployment, sync collected data:
+
+```bash
+aws s3 sync s3://categories-of-the-commons-data-{ACCOUNT_ID}/raw data/raw
+```
+
+---
+
+**Last Updated:** 2025-11-28

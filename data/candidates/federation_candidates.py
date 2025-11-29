@@ -36,6 +36,11 @@ CANDIDATES = [
     # Other foundations
     "eclipse/che",
     "openstack/nova",
+
+    # Linux Foundation - OpenTofu
+    # Forked from Terraform after HashiCorp BSL license change (2023)
+    # Interesting case study: rapid community mobilization, fork governance
+    "opentofu/opentofu",
 ]
 
 # High priority for collection
@@ -45,6 +50,7 @@ HIGH_PRIORITY = [
     "python/cpython",
     "rust-lang/rust",
     "apache/kafka",
+    "opentofu/opentofu",  # Fork governance case study
 ]
 
 # Already collected (if any)

@@ -1,0 +1,46 @@
+{
+  "queue": {
+    "pending": [
+      "rust-lang/regex",
+      "serde-rs/json",
+      "clap-rs/clap",
+      "sqlite/sqlite",
+      "babel/babel",
+      "lodash/lodash",
+      "expressjs/express",
+      "python-attrs/attrs",
+      "pypa/pip",
+      "tokio-rs/tokio",
+      "rust-random/rand",
+      "spf13/cobra",
+      "gorilla/mux",
+      "rack/rack",
+      "sparklemotion/nokogiri"
+    ],
+    "in_progress": null,
+    "completed": [
+      "uuidjs/uuid",
+      "debug-js/debug",
+      "npm/node-semver",
+      "vercel/ms",
+      "node-fetch/node-fetch",
+      "yargs/yargs",
+      "urllib3/urllib3",
+      "dateutil/dateutil",
+      "certifi/python-certifi",
+      "pallets/click"
+    ],
+    "failed": []
+  },
+  "metadata": {
+    "created_at": "2025-11-28T22:43:23.637071+00:00",
+    "updated_at": "2025-11-28T23:26:19.482223+00:00",
+    "category": "stadium",
+    "total_projects": 25
+  },
+  "statistics": {
+    "api_calls_total": 3500,
+    "last_collection_duration_sec": 2351.3060960769653,
+    "collections_completed": 10
+  }
+}
