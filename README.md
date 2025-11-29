@@ -154,31 +154,31 @@ Stafford Beer's VSM identifies five systems necessary for organizational viabili
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    ENVIRONMENT                               │
+│                    ENVIRONMENT                              │
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │                 SYSTEM 5: POLICY                      │  │
 │  │     Identity, Values, Strategic Direction             │  │
 │  │     [GOVERNANCE.md, Mission, Core Values]             │  │
 │  └───────────────────────────────────────────────────────┘  │
-│                           ↕                                  │
+│                           ↕                                 │
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │               SYSTEM 4: INTELLIGENCE                  │  │
 │  │     Environmental Scanning, Future Planning           │  │
 │  │     [Roadmaps, RFCs, Ecosystem Monitoring]            │  │
 │  └───────────────────────────────────────────────────────┘  │
-│                           ↕                                  │
+│                           ↕                                 │
 │  ┌───────────────────────────────────────────────────────┐  │
-│  │     SYSTEM 3: CONTROL    │    SYSTEM 3*: AUDIT       │  │
+│  │     SYSTEM 3: CONTROL     │    SYSTEM 3*: AUDIT       │  │
 │  │     Operational Oversight │    Direct Verification    │  │
 │  │     [Metrics, Releases]   │    [Security Audits]      │  │
 │  └───────────────────────────────────────────────────────┘  │
-│                           ↕                                  │
+│                           ↕                                 │
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │               SYSTEM 2: COORDINATION                  │  │
 │  │     Conflict Resolution, Standards, Anti-oscillation  │  │
 │  │     [CONTRIBUTING.md, CI/CD, Code Review]             │  │
 │  └───────────────────────────────────────────────────────┘  │
-│                           ↕                                  │
+│                           ↕                                 │
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │               SYSTEM 1: OPERATIONS                    │  │
 │  │     Primary Activities, Value Creation                │  │
@@ -541,11 +541,11 @@ TRADITIONAL BALANCED DESIGN (n=60)
 Detectable effect size: d ≥ 0.75 (medium-large)
 
 STADIUM-OPTIMIZED DESIGN (n=70)
-┌────────────────────────────────┬─────────────┬──────────┬──────────────┐
-│          Stadium               │ Federation  │   Club   │   Control    │
-│           n=28                 │   n=14      │   n=10   │    n=18      │
+┌────────────────────────────────┬─────────────┬───────────┬──────────────┐
+│          Stadium               │ Federation  │   Club    │   Control    │
+│           n=28                 │   n=14      │   n=10    │    n=18      │
 │         Power: 0.85            │ Power: 0.75 │Power: 0.70│ Power: 0.75  │
-└────────────────────────────────┴─────────────┴──────────┴──────────────┘
+└────────────────────────────────┴─────────────┴───────────┴──────────────┘
 Detectable effect size: d ≥ 0.50 (medium)
 
 ADVANTAGE: +30% power for primary Stadium comparisons
