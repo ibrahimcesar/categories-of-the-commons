@@ -268,6 +268,207 @@ class CollectorDaemon:
         else:
             print("ℹ️  No failed projects to retry")
 
+    def update(
+        self,
+        category: Optional[str] = None,
+        since_days: Optional[int] = None,
+        limit: Optional[int] = None,
+        wait_on_limit: bool = False
+    ) -> dict:
+        """
+        Update existing collected data with delta (new commits/PRs/issues since last collection).
+
+        Only re-collects data newer than the last collection date for each project.
+
+        Args:
+            category: Category to update (or all if None)
+            since_days: Override days to look back (default: since last collection)
+            limit: Maximum projects to update
+            wait_on_limit: Wait for rate limit reset
+
+        Returns:
+            Summary of update run
+        """
+        import json
+        from datetime import datetime, timezone
+
+        start_time = time.time()
+        updated = 0
+        failed = 0
+        skipped = 0
+
+        # Find projects to update
+        data_files = list(self.output_dir.glob("*_data.json"))
+
+        if not data_files:
+            print("ℹ️  No collected data found to update")
+            return {"updated": 0, "failed": 0, "skipped": 0}
+
+        # Filter by category if specified
+        if category:
+            from data.candidates import ALL_CANDIDATES
+            if category not in ALL_CANDIDATES:
+                print(f"❌ Unknown category: {category}")
+                return {"updated": 0, "failed": 0, "skipped": 0, "error": "unknown_category"}
+
+            category_projects = set(p.replace("/", "_") for p in ALL_CANDIDATES[category])
+            data_files = [f for f in data_files if f.stem.replace("_data", "") in category_projects]
+
+        print(f"\n🔄 Updating {len(data_files)} projects...")
+        if category:
+            print(f"   Category: {category}")
+        print()
+
+        for data_file in data_files:
+            if self._shutdown_requested:
+                break
+
+            if limit and updated >= limit:
+                print(f"\n✅ Reached update limit ({limit})")
+                break
+
+            # Check rate limit
+            if not self.rate_limiter.can_collect():
+                if wait_on_limit:
+                    if not self.rate_limiter.wait_for_reset(interactive=True):
+                        break
+                else:
+                    print(f"\n⏸️  Rate limit low. Stopping update.")
+                    break
+
+            # Load existing data
+            try:
+                with open(data_file, 'r') as f:
+                    existing_data = json.load(f)
+            except Exception as e:
+                print(f"   ⚠️  Could not read {data_file.name}: {e}")
+                skipped += 1
+                continue
+
+            # Get project name and last collection date
+            project = existing_data.get("metadata", {}).get("repo")
+            if not project:
+                # Try to extract from filename
+                project = data_file.stem.replace("_data", "").replace("_", "/", 1)
+
+            last_collected = existing_data.get("metadata", {}).get("collected_at")
+
+            # Calculate days since last collection
+            if since_days:
+                days_to_collect = since_days
+            elif last_collected:
+                try:
+                    last_date = datetime.fromisoformat(last_collected.replace("Z", "+00:00"))
+                    days_since = (datetime.now(timezone.utc) - last_date).days
+                    days_to_collect = max(1, days_since)  # At least 1 day
+                except:
+                    days_to_collect = 30  # Default fallback
+            else:
+                days_to_collect = 30
+
+            if days_to_collect < 1:
+                print(f"   ⏭️  {project}: Already up to date")
+                skipped += 1
+                continue
+
+            print(f"📥 [{updated + 1}] Updating: {project} (last {days_to_collect} days)")
+
+            try:
+                # Collect new data
+                new_data = self.collector.collect_complete_dataset(
+                    project,
+                    since_days=days_to_collect
+                )
+
+                # Merge with existing data
+                merged_data = self._merge_delta(existing_data, new_data)
+
+                # Save merged data
+                self.collector.save_data(merged_data, data_file)
+
+                updated += 1
+                new_commits = len(new_data.get("recent_commits", []))
+                print(f"   ✅ Updated: +{new_commits} new commits")
+
+            except Exception as e:
+                error_msg = str(e)
+                print(f"   ❌ Failed: {error_msg}")
+                failed += 1
+
+            self.rate_limiter.report_usage(350)
+
+        duration = time.time() - start_time
+
+        print(f"\n📊 Update Summary:")
+        print(f"   Updated: {updated}")
+        print(f"   Failed: {failed}")
+        print(f"   Skipped: {skipped}")
+        print(f"   Duration: {duration/60:.1f} minutes")
+
+        return {
+            "updated": updated,
+            "failed": failed,
+            "skipped": skipped,
+            "duration_seconds": duration
+        }
+
+    def _merge_delta(self, existing: dict, new_data: dict) -> dict:
+        """
+        Merge new delta data with existing collected data.
+
+        Args:
+            existing: Previously collected data
+            new_data: Newly collected delta data
+
+        Returns:
+            Merged dataset
+        """
+        from datetime import datetime, timezone
+
+        merged = existing.copy()
+
+        # Update metadata
+        merged["metadata"]["updated_at"] = datetime.now(timezone.utc).isoformat()
+        merged["metadata"]["last_delta_days"] = new_data.get("metadata", {}).get("collection_period_days", 0)
+
+        # Update repository metrics (always use latest)
+        if "repository" in new_data:
+            merged["repository"] = new_data["repository"]
+
+        # Merge commits (deduplicate by SHA)
+        if "recent_commits" in new_data:
+            existing_shas = {c["sha"] for c in merged.get("recent_commits", [])}
+            new_commits = [c for c in new_data["recent_commits"] if c["sha"] not in existing_shas]
+            merged["recent_commits"] = new_commits + merged.get("recent_commits", [])
+
+        # Update PR stats (use latest)
+        if "pull_requests" in new_data:
+            merged["pull_requests"] = new_data["pull_requests"]
+
+        # Update issue stats (use latest)
+        if "issues" in new_data:
+            merged["issues"] = new_data["issues"]
+
+        # Update contributors (merge and deduplicate)
+        if "contributors" in new_data:
+            existing_logins = {c["login"] for c in merged.get("contributors", [])}
+            # Update existing contributor counts
+            for new_c in new_data["contributors"]:
+                if new_c["login"] in existing_logins:
+                    # Find and update
+                    for i, ec in enumerate(merged["contributors"]):
+                        if ec["login"] == new_c["login"]:
+                            merged["contributors"][i]["contributions"] = new_c["contributions"]
+                            break
+                else:
+                    merged["contributors"].append(new_c)
+
+        # Re-sort contributors by contributions
+        if "contributors" in merged:
+            merged["contributors"].sort(key=lambda x: x.get("contributions", 0), reverse=True)
+
+        return merged
+
     def print_status(self) -> None:
         """Print detailed status."""
         status = self.state_manager.get_status()
@@ -400,6 +601,29 @@ Examples:
     add_parser = subparsers.add_parser("add", help="Add specific projects")
     add_parser.add_argument("projects", nargs="+", help="Projects in owner/repo format")
 
+    # update command (delta collection)
+    update_parser = subparsers.add_parser("update", help="Update existing data with delta")
+    update_parser.add_argument(
+        "--category", "-c",
+        choices=["stadium", "federation", "club", "toy"],
+        help="Category to update (default: all)"
+    )
+    update_parser.add_argument(
+        "--days", "-d",
+        type=int,
+        help="Days to look back (default: since last collection)"
+    )
+    update_parser.add_argument(
+        "--limit", "-n",
+        type=int,
+        help="Maximum projects to update"
+    )
+    update_parser.add_argument(
+        "--wait", "-w",
+        action="store_true",
+        help="Wait for rate limit reset and continue"
+    )
+
     args = parser.parse_args()
 
     if not args.command:
@@ -445,6 +669,14 @@ Examples:
 
     elif args.command == "add":
         daemon.add_projects(args.projects)
+
+    elif args.command == "update":
+        result = daemon.update(
+            category=args.category,
+            since_days=args.days,
+            limit=args.limit,
+            wait_on_limit=args.wait
+        )
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 .PHONY: help install test lint format clean docs \
         collector-init collector-status collector-watch collector-run collector-resume \
-        collector-retry collector-clear \
+        collector-retry collector-clear collector-update \
         cdk-init cdk-synth cdk-deploy cdk-destroy cdk-diff cdk-bootstrap cdk-set-token
 
 # Python command (use python3 on macOS)
@@ -37,6 +37,8 @@ help:
 	@echo "  $(CYAN)make collector-run-wait LIMIT=10$(RESET)        Collect N, wait for rate limit reset"
 	@echo "  $(CYAN)make collector-resume$(RESET)                   Resume collection from last state"
 	@echo "  $(CYAN)make collector-retry$(RESET)                    Retry failed projects"
+	@echo "  $(CYAN)make collector-update$(RESET)                   Update existing data with delta"
+	@echo "  $(CYAN)make collector-update CATEGORY=federation$(RESET) Update specific category"
 	@echo "  $(CYAN)make collector-clear$(RESET)                    Clear collection state"
 	@echo ""
 	@echo "$(BOLD)$(GREEN)☁️  AWS Deployment (Phase 2 - CDK):$(RESET)"
@@ -163,6 +165,16 @@ collector-retry:
 collector-clear:
 	@echo "$(RED)🗑️  Clearing collection state...$(RESET)"
 	$(PYTHON) -m src.collection.collector_daemon clear --force
+
+collector-update:
+	@echo "$(MAGENTA)🔄 Updating existing data with delta...$(RESET)"
+ifdef CATEGORY
+	$(PYTHON) -m src.collection.collector_daemon update --category $(CATEGORY) $(if $(DAYS),--days $(DAYS)) $(if $(LIMIT),--limit $(LIMIT))
+else ifdef DAYS
+	$(PYTHON) -m src.collection.collector_daemon update --days $(DAYS) $(if $(LIMIT),--limit $(LIMIT))
+else
+	$(PYTHON) -m src.collection.collector_daemon update $(if $(LIMIT),--limit $(LIMIT))
+endif
 
 # =============================================================================
 # AWS CDK Commands (Phase 2)

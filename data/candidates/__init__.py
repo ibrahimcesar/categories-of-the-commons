@@ -45,25 +45,45 @@ COLLECTION_STATUS = {
 }
 
 
+def get_actually_collected() -> set:
+    """Get set of actually collected projects by checking data/raw/ directory."""
+    import os
+    from pathlib import Path
+
+    raw_dir = Path(__file__).parent.parent / "raw"
+    collected = set()
+
+    if raw_dir.exists():
+        for f in raw_dir.glob("*_data.json"):
+            # Convert filename back to owner/repo format
+            name = f.stem.replace("_data", "")
+            # Replace first underscore with slash (owner_repo -> owner/repo)
+            parts = name.split("_", 1)
+            if len(parts) == 2:
+                collected.add(f"{parts[0]}/{parts[1]}")
+
+    return collected
+
+
 def get_uncollected(category: str) -> list:
-    """Get list of uncollected candidates for a category."""
-    if category == "stadium":
-        return [c for c in STADIUM_ALL if c not in STADIUM_COLLECTED]
-    elif category == "federation":
-        return [c for c in FEDERATION_CANDIDATES if c not in FEDERATION_COLLECTED]
-    elif category == "club":
-        return [c for c in CLUB_CANDIDATES if c not in CLUB_COLLECTED]
-    elif category == "toy":
-        return [c for c in TOY_CANDIDATES if c not in TOY_COLLECTED]
-    return []
+    """Get list of uncollected candidates for a category by checking actual files."""
+    actually_collected = get_actually_collected()
+
+    candidates = ALL_CANDIDATES.get(category, [])
+    return [c for c in candidates if c not in actually_collected]
 
 
 def print_status():
-    """Print collection status for all categories."""
+    """Print collection status for all categories (checks actual files)."""
+    actually_collected = get_actually_collected()
+
     print("=" * 50)
     print("CANDIDATE COLLECTION STATUS")
     print("=" * 50)
-    for cat, status in COLLECTION_STATUS.items():
-        pct = (status["collected"] / status["total"] * 100) if status["total"] > 0 else 0
-        print(f"{cat.upper():12} {status['collected']:3}/{status['total']:3} ({pct:.0f}%)")
+    for cat, candidates in ALL_CANDIDATES.items():
+        collected_count = len([c for c in candidates if c in actually_collected])
+        total = len(candidates)
+        pct = (collected_count / total * 100) if total > 0 else 0
+        status_icon = "✅" if collected_count == total else "🔄"
+        print(f"{status_icon} {cat.upper():12} {collected_count:3}/{total:3} ({pct:.0f}%)")
     print("=" * 50)

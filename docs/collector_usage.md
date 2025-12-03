@@ -626,6 +626,57 @@ The daemon automatically:
 
 For fully automated collection, deploy to AWS using CDK.
 
+### Chunked Execution for Large Projects
+
+The Lambda handler supports **chunked execution with self-invocation** to handle large projects (like Grafana with 8000+ commits) that would exceed the 15-minute Lambda timeout.
+
+**How it works:**
+
+1. **Phase-based collection**: Data is collected in phases (repo → contributors → governance → commits → PRs → issues)
+2. **Time monitoring**: Lambda checks remaining execution time every 50 commits
+3. **Checkpointing**: When time runs low, progress is saved to DynamoDB (checkpoint + partial data)
+4. **Self-invocation**: Lambda invokes itself asynchronously to continue from the checkpoint
+5. **Automatic resume**: Next invocation picks up exactly where it left off
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  Lambda Run 1   │────▶│  Lambda Run 2   │────▶│  Lambda Run 3   │
+│                 │     │                 │     │                 │
+│ Collect:        │     │ Continue:       │     │ Complete:       │
+│ - repo metrics  │     │ - commits       │     │ - remaining     │
+│ - contributors  │     │   (500-1000)    │     │   commits       │
+│ - governance    │     │                 │     │ - PRs           │
+│ - commits (500) │     │ Checkpoint      │     │ - issues        │
+│                 │     │ & self-invoke   │     │                 │
+│ Checkpoint      │     └─────────────────┘     │ Save to S3 ✅   │
+│ & self-invoke   │                             └─────────────────┘
+└─────────────────┘
+```
+
+**Configuration constants** (in `handler.py`):
+
+| Constant | Default | Description |
+|----------|---------|-------------|
+| `COMMIT_BATCH_SIZE` | 500 | Commits collected per chunk |
+| `MIN_REMAINING_TIME_MS` | 60000 | Min time (ms) before checkpointing |
+| `SELF_INVOKE_BUFFER_MS` | 120000 | Time buffer for self-invocation |
+
+**DynamoDB checkpoint schema:**
+
+```json
+{
+  "pk": "PROJECT#grafana/grafana",
+  "sk": "STATUS",
+  "status": "in_progress",
+  "checkpoint": {
+    "phase": "commits",
+    "offset": 500
+  },
+  "partial_data": "{...serialized JSON...}",
+  "updated_at": "2025-11-29T..."
+}
+```
+
 ### Prerequisites
 
 ```bash

@@ -1,44 +1,37 @@
 {
   "queue": {
     "pending": [
-      "apache/kafka",
-      "apache/spark",
-      "apache/hadoop",
-      "apache/airflow",
-      "envoyproxy/envoy",
-      "containerd/containerd",
-      "etcd-io/etcd",
-      "helm/helm",
-      "nicotine-plus/nicotine-plus",
-      "python/cpython",
-      "django/django",
-      "rust-lang/rust",
-      "eclipse/che",
-      "openstack/nova",
-      "opentofu/opentofu"
+      "juliangruber/isarray",
+      "jonschlinkert/is-number",
+      "feross/safe-buffer",
+      "mafintosh/pump",
+      "substack/minimist",
+      "isaacs/once",
+      "isaacs/inherits",
+      "tartley/colorama",
+      "docopt/docopt",
+      "keleshev/schema",
+      "dtolnay/anyhow",
+      "dtolnay/thiserror",
+      "BurntSushi/ripgrep",
+      "BurntSushi/xsv",
+      "fatih/color",
+      "sirupsen/logrus",
+      "mitchellh/mapstructure"
     ],
-    "in_progress": "grafana/grafana",
-    "completed": [
-      "kubernetes/kubernetes",
-      "nodejs/node"
-    ],
-    "failed": [
-      {
-        "repo": "prometheus/prometheus",
-        "error": "HTTPSConnectionPool(host='api.github.com', port=443): Max retries exceeded with url: /repos/prometheus/prometheus (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x1161756d0>: Failed to resolve 'api.github.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
-        "timestamp": "2025-11-29T14:03:02.800300+00:00"
-      }
-    ]
+    "in_progress": "sindresorhus/is-odd",
+    "completed": [],
+    "failed": []
   },
   "metadata": {
-    "created_at": "2025-11-29T13:03:35.277395+00:00",
-    "updated_at": "2025-11-29T14:03:02.804487+00:00",
-    "category": "federation",
-    "total_projects": 19
+    "created_at": "2025-12-03T04:30:00.127606+00:00",
+    "updated_at": "2025-12-03T04:30:07.378304+00:00",
+    "category": "toy",
+    "total_projects": 18
   },
   "statistics": {
     "api_calls_total": 0,
-    "last_collection_duration_sec": 0,
-    "collections_completed": 2
+    "last_collection_duration_sec": 0.88844895362854,
+    "collections_completed": 0
   }
 }
