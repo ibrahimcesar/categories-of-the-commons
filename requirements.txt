@@ -25,6 +25,9 @@ plotly>=5.18.0
 # Network Analysis (for morphism graphs)
 networkx>=3.2.0
 
+# Topological Data Analysis (for sheaf cohomology)
+gudhi>=3.9.0
+
 # Text Processing (for governance document analysis)
 nltk>=3.8.0
 spacy>=3.7.0

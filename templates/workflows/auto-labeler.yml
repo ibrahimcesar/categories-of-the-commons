@@ -1,0 +1,41 @@
+# .github/workflows/auto-labeler.yml
+# Automatically labels PRs based on changed files
+
+name: Auto Labeler
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+# Also create .github/labeler.yml:
+# ---
+# documentation:
+#   - changed-files:
+#     - any-glob-to-any-file: ['docs/**', '*.md']
+# 
+# source:
+#   - changed-files:
+#     - any-glob-to-any-file: 'src/**'
+# 
+# tests:
+#   - changed-files:
+#     - any-glob-to-any-file: ['tests/**', '**/*.test.*']
+# 
+# ci:
+#   - changed-files:
+#     - any-glob-to-any-file: '.github/**'
+# 
+# dependencies:
+#   - changed-files:
+#     - any-glob-to-any-file: ['package.json', 'requirements.txt', 'Cargo.toml']

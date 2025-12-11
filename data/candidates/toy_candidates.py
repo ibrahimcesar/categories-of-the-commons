@@ -9,12 +9,12 @@ CANDIDATES = [
     # ==========================================================================
     # JavaScript/Node.js - Single maintainer micro-utilities
     # ==========================================================================
-    "sindresorhus/is-odd",          # Check if number is odd
+    "lukeed/kleur",                 # Terminal string styling, single author
     "juliangruber/isarray",         # Array check polyfill, billions of downloads
     "jonschlinkert/is-number",      # Check if value is number
     "feross/safe-buffer",           # Buffer polyfill, single author
     "mafintosh/pump",               # Pipe streams properly
-    "substack/minimist",            # Argument parser, classic single-author
+    "minimistjs/minimist",          # Argument parser (was substack/minimist)
     "isaacs/once",                  # Run function once
     "isaacs/inherits",              # Inheritance utility
 
@@ -49,12 +49,12 @@ CANDIDATES = [
 # High priority for collection (not yet collected)
 HIGH_PRIORITY = [
     # JavaScript
-    "sindresorhus/is-odd",
+    "lukeed/kleur",
     "juliangruber/isarray",
     "jonschlinkert/is-number",
     "feross/safe-buffer",
     "mafintosh/pump",
-    "substack/minimist",
+    "minimistjs/minimist",
     "isaacs/once",
     "isaacs/inherits",
 

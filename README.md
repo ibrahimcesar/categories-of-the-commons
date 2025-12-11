@@ -900,6 +900,32 @@ And to the countless open source maintainers who make the digital commons possib
 
 ---
 
+## Appendix: VSM Health Badges for Projects
+
+This research includes a public API that generates VSM Health badges for any GitHub repository. Project maintainers can embed these badges in their READMEs.
+
+**API Base URL:** `https://categories-of-the-commons-omg5alawo-ibrahim-cesars-projects.vercel.app`
+
+**Quick Start:**
+```markdown
+![VSM Health](https://categories-of-the-commons-omg5alawo-ibrahim-cesars-projects.vercel.app/badge/YOUR_ORG/YOUR_REPO)
+```
+
+**Available Endpoints:**
+
+| Endpoint | Returns |
+|----------|---------|
+| `/badge/{owner}/{repo}` | Simple shields-style badge |
+| `/card/{owner}/{repo}?theme=dark\|light` | Detailed card with S1-S5 breakdown |
+| `/mini/{owner}/{repo}?theme=dark\|light` | Compact card with radar chart |
+| `/report/{owner}/{repo}` | JSON health report |
+
+**Improve Your Score:** Add governance files (`GOVERNANCE.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `.github/CODEOWNERS`, `ROADMAP.md`) and enable GitHub Discussions.
+
+**Self-Hosted:** Use `scripts/generate_vsm_badge.py` or the GitHub Action in `templates/workflows/update-vsm-badge.yml`.
+
+---
+
 <div align="center">
 
 *"In the beginning was the morphism."*

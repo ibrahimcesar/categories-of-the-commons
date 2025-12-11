@@ -1,0 +1,433 @@
+# VSM Health Badge Updater
+#
+# This GitHub Action automatically generates and updates VSM health badges
+# for your repository. Add this to .github/workflows/update-vsm-badge.yml
+#
+# The action will:
+# 1. Analyze your repository's governance health
+# 2. Generate SVG badges (simple badge, detailed card, mini card)
+# 3. Commit them to docs/badges/ directory
+# 4. Optionally update your README with the badge
+#
+# Requirements:
+# - Python 3.10+
+# - Write permissions to repository
+#
+# Optional: Set GITHUB_TOKEN secret for higher API rate limits
+
+name: Update VSM Health Badge
+
+on:
+  # Run on push to main branch
+  push:
+    branches: [main, master]
+
+  # Run weekly on Sunday at midnight
+  schedule:
+    - cron: '0 0 * * 0'
+
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      update_readme:
+        description: 'Update README with badge'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  update-badge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install httpx
+
+      - name: Generate VSM badges
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          python << 'EOF'
+          import os
+          import json
+          import math
+          import httpx
+          from pathlib import Path
+          from datetime import datetime
+
+          # Configuration
+          OWNER = os.environ.get('REPO_OWNER')
+          REPO = os.environ.get('REPO_NAME')
+          TOKEN = os.environ.get('GITHUB_TOKEN', '')
+          OUTPUT_DIR = Path('docs/badges')
+          OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+          print(f"Generating VSM badges for {OWNER}/{REPO}")
+
+          # GitHub API headers
+          headers = {'Accept': 'application/vnd.github.v3+json'}
+          if TOKEN:
+              headers['Authorization'] = f'token {TOKEN}'
+
+          # Fetch data from GitHub
+          def fetch_data():
+              with httpx.Client(timeout=30.0) as client:
+                  # Repository info
+                  repo_resp = client.get(f'https://api.github.com/repos/{OWNER}/{REPO}', headers=headers)
+                  repo_data = repo_resp.json() if repo_resp.status_code == 200 else {}
+
+                  # Contributors
+                  contrib_resp = client.get(
+                      f'https://api.github.com/repos/{OWNER}/{REPO}/contributors',
+                      headers=headers, params={'per_page': 30}
+                  )
+                  contributors = contrib_resp.json() if contrib_resp.status_code == 200 else []
+
+                  # Commits
+                  commits_resp = client.get(
+                      f'https://api.github.com/repos/{OWNER}/{REPO}/commits',
+                      headers=headers, params={'per_page': 50}
+                  )
+                  commits = commits_resp.json() if commits_resp.status_code == 200 else []
+
+                  # Pull requests
+                  prs_resp = client.get(
+                      f'https://api.github.com/repos/{OWNER}/{REPO}/pulls',
+                      headers=headers, params={'state': 'all', 'per_page': 30}
+                  )
+                  prs = prs_resp.json() if prs_resp.status_code == 200 else []
+
+                  # Governance files
+                  gov_files = {}
+                  for f in ['GOVERNANCE.md', 'CODE_OF_CONDUCT.md', 'CONTRIBUTING.md',
+                            'MAINTAINERS.md', '.github/CODEOWNERS', 'ROADMAP.md']:
+                      resp = client.get(
+                          f'https://api.github.com/repos/{OWNER}/{REPO}/contents/{f}',
+                          headers=headers
+                      )
+                      gov_files[f] = resp.status_code == 200
+
+                  return {
+                      'repository': repo_data,
+                      'contributors': contributors if isinstance(contributors, list) else [],
+                      'recent_commits': commits if isinstance(commits, list) else [],
+                      'pull_requests': prs if isinstance(prs, list) else [],
+                      'governance_files': gov_files,
+                  }
+
+          # Calculate VSM scores
+          def calculate_scores(data):
+              contributors = data.get('contributors', [])
+              commits = data.get('recent_commits', [])
+              prs = data.get('pull_requests', [])
+              gov_files = data.get('governance_files', {})
+              repo = data.get('repository', {})
+
+              # Bus factor
+              if contributors:
+                  contribs = sorted([c.get('contributions', 0) for c in contributors], reverse=True)
+                  total = sum(contribs)
+                  cumsum, bus_factor = 0, 0
+                  for c in contribs:
+                      cumsum += c
+                      bus_factor += 1
+                      if cumsum >= total * 0.5:
+                          break
+              else:
+                  bus_factor = 0
+
+              # S1: Operations
+              s1 = min(100, len(contributors) * 0.5 + len(commits) * 0.5 + len(prs) * 0.5 + bus_factor * 5)
+
+              # S2: Coordination
+              s2 = 0
+              s2 += 30 if gov_files.get('.github/CODEOWNERS') else 0
+              s2 += 40 if prs else 0
+              s2 += 30 if len(prs) > 5 else 15
+              s2 = min(100, s2)
+
+              # S3: Control
+              s3 = 0
+              s3 += 25 if gov_files.get('CONTRIBUTING.md') else 0
+              s3 += 25 if gov_files.get('MAINTAINERS.md') else 0
+              active_maintainers = min(5, len([c for c in contributors[:10] if c.get('contributions', 0) > 10]))
+              s3 += min(50, active_maintainers * 12.5)
+              s3 = min(100, s3)
+
+              # S4: Intelligence
+              s4 = 0
+              s4 += 30 if repo.get('has_discussions') else 0
+              s4 += 30 if gov_files.get('ROADMAP.md') else 0
+              s4 += 20 if repo.get('has_wiki') else 0
+              s4 += 20 if repo.get('open_issues_count', 0) > 0 else 0
+              s4 = min(100, s4)
+
+              # S5: Policy
+              s5 = 0
+              s5 += 30 if gov_files.get('GOVERNANCE.md') else 0
+              s5 += 20 if gov_files.get('CODE_OF_CONDUCT.md') else 0
+              s5 += 20 if repo.get('license') else 0
+              s5 += 10 if repo.get('description') else 0
+              foundation_indicators = ['apache', 'linux', 'cncf', 'eclipse', 'python']
+              owner = repo.get('owner', {}).get('login', '').lower()
+              s5 += 20 if any(f in owner for f in foundation_indicators) else 0
+              s5 = min(100, s5)
+
+              # Overall score (weighted)
+              overall = s1 * 0.25 + s2 * 0.20 + s3 * 0.20 + s4 * 0.15 + s5 * 0.20
+
+              # Risk level
+              scores = [s1, s2, s3, s4, s5]
+              critical_count = sum(1 for s in scores if s < 40)
+              if critical_count >= 2 or overall < 30:
+                  risk_level = 'CRITICAL'
+              elif critical_count >= 1 or overall < 50:
+                  risk_level = 'HIGH'
+              elif overall < 70:
+                  risk_level = 'MEDIUM'
+              else:
+                  risk_level = 'LOW'
+
+              # Category
+              stars = repo.get('stargazers_count', 0)
+              if overall >= 60 and len(contributors) > 50:
+                  category = 'federation'
+              elif overall >= 45 and len(contributors) > 20:
+                  category = 'club'
+              elif len(contributors) > 5:
+                  category = 'stadium'
+              else:
+                  category = 'toy'
+
+              return {
+                  'repository': f'{OWNER}/{REPO}',
+                  'overall_score': overall,
+                  'risk_level': risk_level,
+                  'category': category,
+                  'subsystems': {
+                      'S1': {'score': s1, 'status': 'healthy' if s1 >= 70 else ('warning' if s1 >= 40 else 'critical')},
+                      'S2': {'score': s2, 'status': 'healthy' if s2 >= 70 else ('warning' if s2 >= 40 else 'critical')},
+                      'S3': {'score': s3, 'status': 'healthy' if s3 >= 70 else ('warning' if s3 >= 40 else 'critical')},
+                      'S4': {'score': s4, 'status': 'healthy' if s4 >= 70 else ('warning' if s4 >= 40 else 'critical')},
+                      'S5': {'score': s5, 'status': 'healthy' if s5 >= 70 else ('warning' if s5 >= 40 else 'critical')},
+                  },
+                  'generated_at': datetime.now().isoformat(),
+              }
+
+          # Color helpers
+          def get_score_color(score):
+              if score >= 70:
+                  return '#2ecc71'
+              elif score >= 40:
+                  return '#f39c12'
+              return '#e74c3c'
+
+          RISK_COLORS = {'LOW': '#2ecc71', 'MEDIUM': '#f1c40f', 'HIGH': '#e67e22', 'CRITICAL': '#e74c3c'}
+
+          # Generate simple badge
+          def generate_badge(report):
+              score = int(report['overall_score'])
+              color = get_score_color(report['overall_score'])
+              label = "VSM Health"
+              label_width = len(label) * 7 + 10
+              value_width = len(str(score)) * 9 + 10
+              total_width = label_width + value_width
+
+              return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{total_width}" height="20">
+            <linearGradient id="smooth" x2="0" y2="100%">
+              <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+              <stop offset="1" stop-opacity=".1"/>
+            </linearGradient>
+            <clipPath id="round">
+              <rect width="{total_width}" height="20" rx="3" fill="#fff"/>
+            </clipPath>
+            <g clip-path="url(#round)">
+              <rect width="{label_width}" height="20" fill="#555"/>
+              <rect x="{label_width}" width="{value_width}" height="20" fill="{color}"/>
+              <rect width="{total_width}" height="20" fill="url(#smooth)"/>
+            </g>
+            <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+              <text x="{label_width/2}" y="15" fill="#010101" fill-opacity=".3">{label}</text>
+              <text x="{label_width/2}" y="14">{label}</text>
+              <text x="{label_width + value_width/2}" y="15" fill="#010101" fill-opacity=".3">{score}</text>
+              <text x="{label_width + value_width/2}" y="14">{score}</text>
+            </g>
+          </svg>'''
+
+          # Generate detailed card
+          def generate_card(report, theme='dark'):
+              width, height, padding = 400, 280, 20
+
+              if theme == 'dark':
+                  bg_color, text_color, text_secondary, border_color = '#1a1a2e', '#ffffff', '#a0a0a0', '#333355'
+                  gradient_end = '#16213e'
+              else:
+                  bg_color, text_color, text_secondary, border_color = '#ffffff', '#333333', '#666666', '#e1e4e8'
+                  gradient_end = '#f6f8fa'
+
+              subsystems = ['S1', 'S2', 'S3', 'S4', 'S5']
+              names = ['Operations', 'Coordination', 'Control', 'Intelligence', 'Policy']
+              score_color = get_score_color(report['overall_score'])
+              risk_color = RISK_COLORS.get(report['risk_level'], '#888')
+
+              bars_svg = ""
+              bar_y_start, bar_height, bar_spacing = 100, 8, 30
+              bar_width = width - 2 * padding - 120
+
+              for i, (key, name) in enumerate(zip(subsystems, names)):
+                  sub = report['subsystems'][key]
+                  y = bar_y_start + i * bar_spacing
+                  filled = (sub['score'] / 100) * bar_width
+                  bar_color = get_score_color(sub['score'])
+                  bars_svg += f'''
+              <text x="{padding}" y="{y + 6}" font-size="12" fill="{text_color}">{key}: {name}</text>
+              <rect x="{padding + 120}" y="{y - 4}" width="{bar_width}" height="{bar_height}" rx="4" fill="{border_color}"/>
+              <rect x="{padding + 120}" y="{y - 4}" width="{filled}" height="{bar_height}" rx="4" fill="{bar_color}"/>
+              <text x="{padding + 125 + bar_width}" y="{y + 6}" font-size="11" fill="{text_secondary}">{sub["score"]:.0f}</text>'''
+
+              return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+            <defs>
+              <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:{bg_color};stop-opacity:1" />
+                <stop offset="100%" style="stop-color:{gradient_end};stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect width="{width}" height="{height}" rx="10" fill="url(#cardGrad)" stroke="{border_color}" stroke-width="1"/>
+            <text x="{padding}" y="{padding + 20}" font-family="Segoe UI, Ubuntu, sans-serif" font-size="18" font-weight="bold" fill="{text_color}">VSM Health Report</text>
+            <text x="{padding}" y="{padding + 40}" font-family="Segoe UI, Ubuntu, sans-serif" font-size="12" fill="{text_secondary}">{report['repository']}</text>
+            <circle cx="{width - 60}" cy="{padding + 30}" r="30" fill="none" stroke="{border_color}" stroke-width="4"/>
+            <circle cx="{width - 60}" cy="{padding + 30}" r="30" fill="none" stroke="{score_color}" stroke-width="4"
+                    stroke-dasharray="{report['overall_score'] * 1.88} 188" stroke-linecap="round" transform="rotate(-90 {width - 60} {padding + 30})"/>
+            <text x="{width - 60}" y="{padding + 35}" font-family="Segoe UI, Ubuntu, sans-serif" font-size="16" font-weight="bold" fill="{text_color}" text-anchor="middle">{report['overall_score']:.0f}</text>
+            <rect x="{width - 100}" y="{padding + 55}" width="80" height="20" rx="10" fill="{risk_color}"/>
+            <text x="{width - 60}" y="{padding + 69}" font-family="Segoe UI, Ubuntu, sans-serif" font-size="10" fill="white" text-anchor="middle">{report['risk_level']}</text>
+            {bars_svg}
+            <text x="{padding}" y="{height - 15}" font-family="Segoe UI, Ubuntu, sans-serif" font-size="10" fill="{text_secondary}">Category: {report['category'].title()}</text>
+            <text x="{width - padding}" y="{height - 15}" font-family="Segoe UI, Ubuntu, sans-serif" font-size="9" fill="{text_secondary}" text-anchor="end">Generated: {datetime.now().strftime('%Y-%m-%d')}</text>
+          </svg>'''
+
+          # Generate mini card
+          def generate_mini(report, theme='dark'):
+              width, height = 250, 80
+
+              if theme == 'dark':
+                  bg_color, text_secondary, border_color = '#1a1a2e', '#a0a0a0', '#333355'
+              else:
+                  bg_color, text_secondary, border_color = '#ffffff', '#666666', '#e1e4e8'
+
+              score_color = get_score_color(report['overall_score'])
+
+              # Radar points
+              cx, cy, r = 45, 45, 25
+              scores = [report['subsystems'][s]['score'] for s in ['S1', 'S2', 'S3', 'S4', 'S5']]
+              points = []
+              for i, score in enumerate(scores):
+                  angle = (i * 72 - 90) * math.pi / 180
+                  point_r = r * (score / 100)
+                  x = cx + point_r * math.cos(angle)
+                  y = cy + point_r * math.sin(angle)
+                  points.append(f"{x},{y}")
+              points_str = " ".join(points)
+
+              return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+            <rect width="{width}" height="{height}" rx="8" fill="{bg_color}" stroke="{border_color}" stroke-width="1"/>
+            <circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="{border_color}" stroke-width="1" opacity="0.3"/>
+            <circle cx="{cx}" cy="{cy}" r="{r*0.5}" fill="none" stroke="{border_color}" stroke-width="1" opacity="0.2"/>
+            <polygon points="{points_str}" fill="{score_color}" fill-opacity="0.3" stroke="{score_color}" stroke-width="2"/>
+            <text x="95" y="25" font-family="Segoe UI, Ubuntu, sans-serif" font-size="11" fill="{text_secondary}">VSM Health</text>
+            <text x="95" y="50" font-family="Segoe UI, Ubuntu, sans-serif" font-size="28" font-weight="bold" fill="{score_color}">{report['overall_score']:.0f}</text>
+            <text x="135" y="50" font-family="Segoe UI, Ubuntu, sans-serif" font-size="12" fill="{text_secondary}">/100</text>
+            <text x="95" y="68" font-family="Segoe UI, Ubuntu, sans-serif" font-size="10" fill="{text_secondary}">{report['category'].title()} | {report['risk_level']}</text>
+          </svg>'''
+
+          # Main execution
+          print("Fetching GitHub data...")
+          data = fetch_data()
+
+          print("Calculating VSM scores...")
+          report = calculate_scores(data)
+
+          print(f"Overall Score: {report['overall_score']:.1f}")
+          print(f"Risk Level: {report['risk_level']}")
+          print(f"Category: {report['category']}")
+
+          print("\nGenerating badges...")
+
+          # Save simple badge
+          badge_svg = generate_badge(report)
+          (OUTPUT_DIR / 'vsm_badge.svg').write_text(badge_svg)
+          print(f"  Saved: {OUTPUT_DIR / 'vsm_badge.svg'}")
+
+          # Save detailed cards (dark and light)
+          card_dark = generate_card(report, 'dark')
+          (OUTPUT_DIR / 'vsm_card_dark.svg').write_text(card_dark)
+          print(f"  Saved: {OUTPUT_DIR / 'vsm_card_dark.svg'}")
+
+          card_light = generate_card(report, 'light')
+          (OUTPUT_DIR / 'vsm_card_light.svg').write_text(card_light)
+          print(f"  Saved: {OUTPUT_DIR / 'vsm_card_light.svg'}")
+
+          # Save mini cards
+          mini_dark = generate_mini(report, 'dark')
+          (OUTPUT_DIR / 'vsm_mini_dark.svg').write_text(mini_dark)
+          print(f"  Saved: {OUTPUT_DIR / 'vsm_mini_dark.svg'}")
+
+          mini_light = generate_mini(report, 'light')
+          (OUTPUT_DIR / 'vsm_mini_light.svg').write_text(mini_light)
+          print(f"  Saved: {OUTPUT_DIR / 'vsm_mini_light.svg'}")
+
+          # Save JSON report
+          (OUTPUT_DIR / 'vsm_report.json').write_text(json.dumps(report, indent=2))
+          print(f"  Saved: {OUTPUT_DIR / 'vsm_report.json'}")
+
+          print("\nDone!")
+          EOF
+
+      - name: Commit and push badges
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add docs/badges/
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update VSM health badges [skip ci]"
+            git push
+            echo "Badges updated successfully!"
+          fi
+
+      - name: Update README (optional)
+        if: ${{ github.event.inputs.update_readme == 'true' }}
+        run: |
+          # Check if README exists and doesn't already have VSM badge
+          if [ -f "README.md" ]; then
+            if ! grep -q "vsm_badge.svg" README.md; then
+              # Add badge after first heading
+              sed -i '0,/^#/{s/^# \(.*\)/# \1\n\n![VSM Health](docs\/badges\/vsm_badge.svg)/}' README.md
+
+              git add README.md
+              git commit -m "docs: add VSM health badge to README [skip ci]" || true
+              git push || true
+              echo "README updated with VSM badge"
+            else
+              echo "README already contains VSM badge"
+            fi
+          fi

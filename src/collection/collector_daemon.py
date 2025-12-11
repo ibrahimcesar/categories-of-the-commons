@@ -647,7 +647,8 @@ Examples:
         print(f"\n📊 Collection Summary:")
         print(f"   Collected: {result['collected']}")
         print(f"   Failed: {result['failed']}")
-        print(f"   Duration: {result['duration_seconds']/60:.1f} minutes")
+        if 'duration_seconds' in result:
+            print(f"   Duration: {result['duration_seconds']/60:.1f} minutes")
 
     elif args.command == "resume":
         result = daemon.resume(
